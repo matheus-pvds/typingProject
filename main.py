@@ -1,6 +1,6 @@
 from calendar import c
 import random as r
-from turtle import listen
+from turtle import listen, st, width
 
 import customtkinter as ctk
 from turtledemo.penrose import star
@@ -10,11 +10,11 @@ class MyFrame(ctk.CTkFrame):
         super().__init__(master, **kwargs)
         self.PADX = 5
         self.PADY = 5
-        self.grid_columnconfigure((0,1,2), weight=1)
-        self.grid_rowconfigure((0,1,2), weight=1)
+        self.grid_columnconfigure((0,1), weight=1)
+        #self.grid_rowconfigure((0,1), weight=1)
         self.pack(padx=self.PADX, pady=self.PADY)
         self.start_button()
-        self.add_text_field("Welcome to typemaster!", "Press start for quote and spacebar to start typing...")
+        self.add_text_field("Welcome to TypeMaster!", "Press start for quote and spacebar to start typing...")
         self.spacebar_on_off(switch="on")
         self.enable_backspace()
 
@@ -23,7 +23,7 @@ class MyFrame(ctk.CTkFrame):
         self.label.grid(row=0, column=0, columnspan=2, padx=self.PADX, pady=self.PADY)
 
         self.entry = ctk.CTkEntry(self, placeholder_text=placeholder_text)
-        self.entry.grid(row=1, column=0, columnspan=2, padx=self.PADX, pady=self.PADY)
+        self.entry.grid(row=1, column=0, columnspan=2, padx=self.PADX, pady=self.PADY, sticky="ew")
     
     def start_button(self):
         self.start_button_ = ctk.CTkButton(self, text="Start", command=self.start_typing)
@@ -43,7 +43,7 @@ class MyFrame(ctk.CTkFrame):
         self.author = passage.split('-')[-1].strip() if '-' in passage else ""
         self.words = self.quote.split()
     
-    def spacebar_press(self):
+    def spacebar_press(self, event):
         # Compare extracted text with the text in the text field
         self.compare_text()
 
@@ -103,7 +103,7 @@ class MyFrame(ctk.CTkFrame):
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("CustomTkinter Example")
+        self.title("TypeMaster")
         self.geometry("800x600")
 
         self.frame = MyFrame(self)
