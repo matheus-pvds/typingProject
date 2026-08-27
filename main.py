@@ -1,9 +1,5 @@
-from calendar import c
 import random as r
-from turtle import listen, st, width
-
 import customtkinter as ctk
-from turtledemo.penrose import star
 
 class MyFrame(ctk.CTkFrame):
     def __init__(self, master=None, **kwargs):
@@ -31,10 +27,11 @@ class MyFrame(ctk.CTkFrame):
 
     def start_typing(self):
         self.extract_text_from_passage()
+        self.generator = self.get_next_word()
         self.update_text_label()
 
     def extract_text_from_passage(self):
-        with open("passages.txt", "r", encoding="ansi") as file:
+        with open("passages.txt", "r", encoding="utf-8") as file:
             passages = file.readlines()
         # Randomly select a passage
         passage = r.choice(passages)
@@ -52,37 +49,31 @@ class MyFrame(ctk.CTkFrame):
             self.entry.bind("<space>", self.spacebar_press)
         elif switch=="off":
             self.entry.unbind("<space>")
-        
-    def compare_text(self):
-        # Get the text from the text field
-        text_field_text = self.entry.get()
-        text_up_to_last_char = text_field_text[:-1]  # Get the text up to the last character (excluding the space)
-        text_size = len(text_up_to_last_char)
-        # Compare the extracted text with the text in the text field
+
+    def compare_text(self, event=None):
+        text_field_text = self.entry.get().strip()
+        text_minus_space = text_field_text[:-1]  # Get the text up to the last character (excluding the space)
+        # If the texts match, change the color of the text to white and enable spacebar
         if self.next_word == text_field_text:
-            # If the texts match, go to the next word in the passage and update the text field
+            self.entry.configure(fg_color="green")
+            self.spacebar_on_off(switch="on")
             self.update_text_field()
             self.update_text_label()
-        elif self.next_word[:(text_size - 1)] == text_up_to_last_char:
-            self.entry.configure(fg_color="white")
-        else:
-            # If the texts do not match, change the color of the text to red and disable spacebar until corrected
+        elif self.next_word.startswith(text_field_text) or self.entry.get()=="":
+            self.entry.configure(fg_color="gray")
+            self.spacebar_on_off(switch="on")
+        elif self.next_word.startswith(text_field_text) or self.next_word != text_field_text:
+        # If the texts do not match, change the color of the text to red and disable spacebar until corrected
             self.entry.configure(fg_color="red")
             self.spacebar_on_off(switch="off")
             self.enable_backspace()
-            return ""
+
+    def backspace_press(self, event):
+        # Compare extracted text with the text in the text field
+        self.compare_text()
 
     def enable_backspace(self):
         self.entry.bind("<BackSpace>", self.backspace_press)
-
-    def backspace_press(self):
-        compare = ""
-        compare = self.compare_text()
-        # Re-enable spacebar when backspace is pressed
-        if compare:
-            self.spacebar_on_off(switch="on")
-        # Reset the text color to default
-            self.entry.configure(fg_color="white")
             
     def update_text_field(self):
         # delete the current text in the text field
@@ -96,7 +87,7 @@ class MyFrame(ctk.CTkFrame):
 
     def update_text_label(self):
         # Update the text label with the next word in the passage
-        self.next_word = next(self.get_next_word(), "")
+        self.next_word = next(self.generator, "")
         self.label.configure(text=self.next_word)
 
         
